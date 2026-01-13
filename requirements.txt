@@ -1,0 +1,7 @@
+asyncpg 
+fastapi 
+python-dotenv
+redis
+requests
+sqlmodel 
+uvicorn 
