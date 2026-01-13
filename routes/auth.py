@@ -79,7 +79,9 @@ async def login(
         "user": {
             "id": user.id, 
             "name": user.name, 
-            "phone": user.phone
+            "phone": user.phone, 
+            "shop_id": user.shop_id, 
+            "user_level_id": user.user_level_id
         }
     }
 
