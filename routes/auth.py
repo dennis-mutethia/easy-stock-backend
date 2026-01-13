@@ -1,11 +1,11 @@
-# auth.py
+
 import hashlib
 import os
 from datetime import datetime, timedelta
 from typing import Optional
 
 import jwt
-from fastapi import Depends, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
@@ -59,3 +59,30 @@ async def get_current_user(
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
     return user
+
+router = APIRouter(prefix="/auth", tags=["Authentication"])
+
+@router.post("/login")
+async def login(
+    phone: str = Body(..., embed=True),
+    password: str = Body(..., embed=True),
+    session: AsyncSession = Depends(get_session)
+):
+    user = await authenticate_user(phone, password, session)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid phone or password")
+
+    access_token = create_access_token(data={"sub": str(user.id)})
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id, 
+            "name": user.name, 
+            "phone": user.phone
+        }
+    }
+
+@router.get("/me")
+async def me(current_user: Users = Depends(get_current_user)):
+    return current_user

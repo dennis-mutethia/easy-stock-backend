@@ -44,27 +44,27 @@ class Licenses(SQLModel, table=True):
     package_id: int
     expires_at: datetime
     payment_id: int
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(default_factory=datetime.now(), nullable=False)
     created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    updated_at: datetime = Field(default_factory=datetime.now(), nullable=False)
     updated_by: Optional[int] = None 
                 
 class Companies(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     license_id: int = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(default_factory=datetime.now(), nullable=False)
     created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    updated_at: datetime = Field(default_factory=datetime.now(), nullable=False)
     updated_by: Optional[int] = None    
         
 class ShopTypes(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     description: Optional[str] = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(default_factory=datetime.now(), nullable=False)
     created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    updated_at: datetime = Field(default_factory=datetime.now(), nullable=False)
     updated_by: Optional[int] = None 
 
 class Shops(SQLModel, table=True):
@@ -87,9 +87,9 @@ class ProductCategories(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     shop_id: int = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(default_factory=datetime.now(), nullable=False)
     created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    updated_at: datetime = Field(default_factory=datetime.now(), nullable=False)
     updated_by: Optional[int] = None    
 
 class Products(SQLModel, table=True):
