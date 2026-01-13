@@ -1,5 +1,6 @@
 asyncpg 
 fastapi 
+pyjwt[crypto]
 python-dotenv
 redis
 requests
