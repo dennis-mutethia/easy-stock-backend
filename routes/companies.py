@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
-from models import Companies, Shops, Users
-from database import get_session
+from utils.models import Companies, Shops, Users
+from utils.database import get_session
 from routes.auth import get_current_user
 
 router = APIRouter(prefix="/licenses", tags=["Companies"])

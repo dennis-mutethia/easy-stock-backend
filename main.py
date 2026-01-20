@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
-from database import init_db
+from utils.database import init_db
 from routes import companies, licenses, packages, auth
 
 @asynccontextmanager
