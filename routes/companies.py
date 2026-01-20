@@ -1,4 +1,4 @@
-# routes/licenses.py
+
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -57,7 +57,7 @@ async def get_company(
         )
 
     result = await session.execute(statement)
-    company = result.scalars().first()
+    company = result.scalar_one_or_none()
 
     if not company:
         raise HTTPException(status_code=404, detail="No company found")
@@ -104,13 +104,25 @@ async def update_company(
     # Fetch the existing company
     statement = select(Companies).where(Companies.id == company_id)
     result = await session.execute(statement)
-    db_company = result.scalar_one_or_none()
+    db_company = result.scalar.one_or_none()
 
     if not db_company:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Company not found"
         )
+        
+    #if admin level is 1, restrict to only update own company
+    if current_user.user_level_id == 1:
+        # Verify that the company belongs to the user's shop
+        shop_statement = select(Shops).where(Shops.company_id == company_id).where(Shops.id == current_user.shop_id)
+        shop_result = await session.execute(shop_statement)
+        shop = shop_result.scalar_one_or_none()
+        if not shop:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin can only update their own company"
+            )
 
     # Get the update data as dict (only fields that were sent)
     update_data = company_update.model_dump(exclude_unset=True)
@@ -121,8 +133,9 @@ async def update_company(
             setattr(db_company, key, value)
 
     # Update audit fields
-    db_company.updated_at = datetime.now()
     db_company.updated_by = current_user.id
+    db_company.updated_at = datetime.now()
+    
     # Commit changes
     session.add(db_company)
     await session.commit()

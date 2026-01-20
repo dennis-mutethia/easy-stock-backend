@@ -1,4 +1,4 @@
-# routes/licenses.py
+
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,6 +39,34 @@ async def get_licenses(
 
     return licenses
 
+@router.get("/{license_id}", response_model=Licenses)
+async def get_license(
+    license_id: int,
+    session: AsyncSession = Depends(get_session),
+    current_user: Users = Depends(get_current_user)
+):
+    # Super-admin (level 0) sees ALL licenses
+    if current_user.user_level_id == 0:
+        statement = select(Licenses).where(Licenses.id == license_id)
+    else:
+        # Normal user: only see license of their company
+        # Join: User → Shop → Company → License
+        statement = (
+            select(Licenses)
+            .join(Companies, Companies.license_id == Licenses.id)
+            .join(Shops, Shops.company_id == Companies.id)
+            .join(Users, Users.shop_id == Shops.id)
+            .where(Users.id == current_user.id)
+            .where(Licenses.id == license_id)
+        )
+
+    result = await session.execute(statement)
+    license = result.scalars().first()
+
+    if not license:
+        raise HTTPException(status_code=404, detail="License not found")
+
+    return license
 
 @router.post("/", response_model=Licenses, status_code=201)
 async def create_license(
@@ -89,8 +117,9 @@ async def update_license(
             setattr(db_license, key, value)
 
     # Update audit fields
-    db_license.updated_at = datetime.now()
     db_license.updated_by = current_user.id
+    db_license.updated_at = datetime.now()
+    
     # Commit changes
     session.add(db_license)
     await session.commit()

@@ -7,9 +7,9 @@ class UserLevels(SQLModel, table=True):
     name: str
     level: int = 0
     description: Optional[str] = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
 
 class Users(SQLModel, table=True):
@@ -19,9 +19,9 @@ class Users(SQLModel, table=True):
     shop_id: int
     user_level_id: int = 0
     password: str
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
         
 class Packages(SQLModel, table=True):
@@ -34,7 +34,7 @@ class Packages(SQLModel, table=True):
     description: Optional[str] = None
     offer: Optional[str] = None
     created_at: Optional[str] = None
-    created_by: Optional[int] = None
+    created_by: int = 0
     updated_at: Optional[datetime] = None
     updated_by: Optional[int] = None
     
@@ -44,27 +44,27 @@ class Licenses(SQLModel, table=True):
     package_id: int
     expires_at: datetime
     payment_id: int
-    created_at: datetime = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: datetime = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: datetime = Field(nullable=False)
     updated_by: Optional[int] = None 
                 
 class Companies(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     license_id: int = None
-    created_at: datetime = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: datetime = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: datetime = Field(nullable=False)
     updated_by: Optional[int] = None    
         
 class ShopTypes(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     description: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: datetime = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: datetime = Field(nullable=False)
     updated_by: Optional[int] = None 
 
 class Shops(SQLModel, table=True):
@@ -73,9 +73,9 @@ class Shops(SQLModel, table=True):
     location: str
     company_id: int
     shop_type_id: int
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
     phone_1: Optional[str] = None
     phone_2: Optional[str] = None
@@ -87,9 +87,9 @@ class ProductCategories(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     shop_id: int = None
-    created_at: datetime = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: datetime = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: datetime = Field(nullable=False)
     updated_by: Optional[int] = None    
 
 class Products(SQLModel, table=True):
@@ -99,9 +99,9 @@ class Products(SQLModel, table=True):
     selling_price: float = None
     category_id: int = None
     shop_id: int = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
     
 class Stock(SQLModel, table=True):
@@ -113,9 +113,9 @@ class Stock(SQLModel, table=True):
     selling_price: float = None
     opening: float = None
     additions: float = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
 
 class Customers(SQLModel, table=True):
@@ -123,9 +123,9 @@ class Customers(SQLModel, table=True):
     name: str
     phone: str
     shop_id: int = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
 
 class Bills(SQLModel, table=True):
@@ -134,9 +134,9 @@ class Bills(SQLModel, table=True):
     total: float = None
     paid: float = None
     shop_id: int = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
 
 class Expenses(SQLModel, table=True):
@@ -145,17 +145,17 @@ class Expenses(SQLModel, table=True):
     name: str
     amount: float = None
     shop_id: int = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
 
 class PaymentModes(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
     
 class Payments(SQLModel, table=True):
@@ -164,9 +164,9 @@ class Payments(SQLModel, table=True):
     amount: float = None
     payment_mode_id: int = None
     shop_id: int = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
 
 class Cashbox(SQLModel, table=True):
@@ -175,8 +175,8 @@ class Cashbox(SQLModel, table=True):
     cash: float = None
     mpesa: float = None
     shop_id: int = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
-    created_by: Optional[int] = None
-    updated_at: Optional[datetime] = Field(default_factory=datetime.now(), nullable=False)
+    created_at: datetime = Field(nullable=False)
+    created_by: int = 0
+    updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
 

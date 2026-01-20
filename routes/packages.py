@@ -1,6 +1,5 @@
-
-from typing import List
 from datetime import datetime
+from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,6 +15,20 @@ router = APIRouter(prefix="/packages", tags=["Packages"])
 async def get_packages(session: AsyncSession = Depends(get_session)):
     result = await session.execute(select(Packages))
     return result.scalars().all()
+
+@router.get("/{package_id}", response_model=Packages)
+async def get_package(
+    package_id: int,
+    session: AsyncSession = Depends(get_session)
+):
+    statement = select(Packages).where(Packages.id == package_id)    
+    result = await session.execute(statement)
+    package = result.scalar_one_or_none()
+
+    if not package:
+        raise HTTPException(status_code=404, detail="Package not found")
+
+    return package
 
 @router.post("/", response_model=Packages, status_code=201)
 async def create_package(
@@ -66,8 +79,8 @@ async def update_package(
             setattr(db_package, key, value)
 
     # Update audit fields
-    db_package.updated_at = datetime.now()
     db_package.updated_by = current_user.id
+    db_package.updated_at = datetime.now()
 
     # Commit changes
     session.add(db_package)
