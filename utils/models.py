@@ -1,5 +1,5 @@
 from typing import Optional
-from datetime import datetime
+from datetime import date, datetime
 from sqlmodel import SQLModel, Field
 
 class User_Levels(SQLModel, table=True):
@@ -106,7 +106,7 @@ class Products(SQLModel, table=True):
     
 class Stock(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    stock_date: Optional[str] = None
+    stock_date: date
     product_id: int
     shop_id: int
     purchase_price: float = None
