@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
 from utils.database import init_db
-from routes import auth, companies, licenses, packages, shops, user_levels
+from routes import auth, companies, licenses, packages, shops, user_levels, users
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -23,6 +23,7 @@ app.include_router(licenses.router)
 app.include_router(companies.router)
 app.include_router(shops.router)
 app.include_router(user_levels.router)
+app.include_router(users.router)
 
 @app.get("/", include_in_schema=False)
 async def root():

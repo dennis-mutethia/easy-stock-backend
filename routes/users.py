@@ -8,17 +8,17 @@ from utils.models import Shops, Users
 from utils.database import get_session
 from routes.auth import get_current_user
 
-router = APIRouter(prefix="/shops", tags=["Shops"])
+router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.get("/")
 async def get_shops(
     session: AsyncSession = Depends(get_session),
     current_user: Users = Depends(get_current_user)
 ):
-    # Super-admin (level 0) sees ALL Shops
+    # Super-admin (level 0) sees ALL Users
     if current_user.user_level_id == 0:
-        statement = select(Shops)
-    # Admin user (level 1) & Supervisor (level 2) sees shops their company owns
+        statement = select(Users)
+    # Admin user (level 1) sees users of their company
     elif current_user.user_level_id in [1, 2]:
         user_shop_statement =(
             select(Shops)
@@ -29,14 +29,16 @@ async def get_shops(
         user_shop = shop_result.scalar_one_or_none()
         
         statement = (
-            select(Shops)
+            select(Users)
+            .join(Shops, Users.shop_id == Shops.id)            
             .where(Shops.company_id == user_shop.company_id)
         )
+        
     else:
-        # Normal user: only see the shop they are attached to
+        # Normal user: only see users in their own shop
         statement = (
-            select(Shops)
-            .join(Users, Users.shop_id == Shops.id)
+            select(Users)
+            .join(Shops, Users.shop_id == Shops.id)
             .where(Users.id == current_user.id)
         )
 
@@ -44,21 +46,21 @@ async def get_shops(
     shops = result.scalars().all()
 
     if not shops:
-        raise HTTPException(status_code=404, detail="No shops found")
+        raise HTTPException(status_code=404, detail="No users found")
 
     return shops
 
-@router.get("/{shop_id}")
-async def get_shop(
-    shop_id: int,
+@router.get("/{user_id}")
+async def get_user(
+    user_id: int,
     session: AsyncSession = Depends(get_session),
     current_user: Users = Depends(get_current_user)
 ):
-    # Super-admin (level 0) sees ALL Shops
+    # Super-admin (level 0) sees ALL Users
     if current_user.user_level_id == 0:
-        statement = select(Shops).where(Shops.id == shop_id)
-        
-    # Admin user (level 1) & Supervisor (level 2) sees shops of their company
+        statement = select(Users).where(Users.id == user_id)
+
+    # Admin user (level 1) & Supervisor (level 2) sees users of their company
     elif current_user.user_level_id in [1, 2]:
         user_shop_statement =(
             select(Shops)
@@ -67,33 +69,34 @@ async def get_shop(
         )
         shop_result = await session.execute(user_shop_statement)
         user_shop = shop_result.scalar_one_or_none()
-        
+
         statement = (
-            select(Shops)
+            select(Users)
+            .join(Shops, Users.shop_id == Shops.id)
             .where(Shops.company_id == user_shop.company_id)
-            .where(Shops.id == shop_id)
+            .where(Users.id == user_id)
         )
-           
+
     else:
-        # Normal user: only see the shop they are attached to
+        # Normal user: only see users in their own shop
         statement = (
-            select(Shops)
-            .join(Users, Users.shop_id == Shops.id)
-            .where(Shops.id == shop_id)
-            .where(Users.shop_id == shop_id)
+            select(Users)
+            .join(Shops, Users.shop_id == Shops.id)
+            .where(Users.id == user_id)
+            .where(Users.shop_id == current_user.shop_id)
         )
 
     result = await session.execute(statement)
-    shop = result.scalar_one_or_none()
+    user = result.scalar_one_or_none()
 
-    if not shop:
-        raise HTTPException(status_code=404, detail="Shop not found")
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return user
 
-    return shop
-
-@router.post("/", response_model=Shops, status_code=201)
-async def create_shop(
-    shop: Shops, 
+@router.post("/", response_model=Users, status_code=201)
+async def create_user(
+    user: Users, 
     session: AsyncSession = Depends(get_session),
     current_user: Users = Depends(get_current_user)
 ):
@@ -106,19 +109,19 @@ async def create_shop(
             detail="Only super-admin & admin can create shops"
         )
 
-    session.add(shop)
+    session.add(user)
     try:
         await session.commit()
-        await session.refresh(shop)
+        await session.refresh(user)
     except IntegrityError as ie:
-        raise HTTPException(status_code=400, detail="Shop already exists") from ie
-    return shop
+        raise HTTPException(status_code=400, detail="User already exists") from ie
+    return user
 
 
-@router.patch("/{shop_id}", response_model=Shops)
-async def update_shop(
-    shop_id: int,
-    shop_update: Shops,
+@router.patch("/{user_id}", response_model=Users)
+async def update_user(
+    user_id: int,
+    user_update: Users,
     session: AsyncSession = Depends(get_session),
     current_user: Users = Depends(get_current_user)
 ):
@@ -127,28 +130,28 @@ async def update_shop(
     if current_user.user_level_id not in [0, 1]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only super-admin & admin can update Shops"
+            detail="Only super-admin & admin can update Users"
         )
 
-    # Fetch the existing shop
-    statement = select(Shops).where(Shops.id == shop_id)
+    # Fetch the existing user
+    statement = select(Users).where(Users.id == user_id)
     result = await session.execute(statement)
-    db_shop = result.scalar_one_or_none()
+    db_user = result.scalar_one_or_none()
 
-    if not db_shop:
+    if not db_user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Shop not found"
+            detail="User not found"
         )
     
     
-    #if admin level is 1, restrict to only update own company shops
+    #if admin level is 1, restrict to only update own company users
     if current_user.user_level_id == 1:
         # Verify that the shop belongs to the user's company
         user_shop_statement =(
             select(Shops)
             .join(Users, Users.shop_id == Shops.id)
-            .where(Shops.company_id == db_shop.company_id)
+            .where(Shops.company_id == db_user.shop.company_id)
             .where(Users.id == current_user.id)
         )
         shop_result = await session.execute(user_shop_statement)
@@ -156,24 +159,24 @@ async def update_shop(
         if not user_shop:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Admin can only update their own company shops"
+                detail="Admin can only update their own company users"
             )
 
     # Get the update data as dict (only fields that were sent)
-    update_data = shop_update.model_dump(exclude_unset=True)
+    update_data = user_update.model_dump(exclude_unset=True)
 
     # Update fields (excluding protected ones like id, created_at, etc.)
     for key, value in update_data.items():
         if key not in {"id", "created_at", "created_by", "updated_at", "updated_by"}:  # Protect audit fields
-            setattr(db_shop, key, value)
+            setattr(db_user, key, value)
 
     # Update audit fields
-    db_shop.updated_by = current_user.id
-    db_shop.updated_at = datetime.now()
-    
-    # Commit changes
-    session.add(db_shop)
-    await session.commit()
-    await session.refresh(db_shop)
+    db_user.updated_by = current_user.id
+    db_user.updated_at = datetime.now()
 
-    return db_shop
+    # Commit changes
+    session.add(db_user)
+    await session.commit()
+    await session.refresh(db_user)
+
+    return db_user

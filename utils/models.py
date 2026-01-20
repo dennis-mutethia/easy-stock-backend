@@ -2,7 +2,7 @@ from typing import Optional
 from datetime import datetime
 from sqlmodel import SQLModel, Field
 
-class UserLevels(SQLModel, table=True):
+class User_Levels(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     level: int = 0
@@ -58,7 +58,7 @@ class Companies(SQLModel, table=True):
     updated_at: datetime = Field(nullable=False)
     updated_by: Optional[int] = None    
         
-class ShopTypes(SQLModel, table=True):
+class Shop_Types(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     description: Optional[str] = None
@@ -83,7 +83,7 @@ class Shops(SQLModel, table=True):
     account_no: Optional[str] = None
     till_no: Optional[str] = None
 
-class ProductCategories(SQLModel, table=True):
+class Product_Categories(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     shop_id: int = None
@@ -150,7 +150,7 @@ class Expenses(SQLModel, table=True):
     updated_at: Optional[datetime] = Field()
     updated_by: Optional[int] = None
 
-class PaymentModes(SQLModel, table=True):
+class Payment_Modes(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: str
     created_at: datetime = Field(nullable=False)

@@ -5,23 +5,23 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from utils.models import UserLevels, Users
+from utils.models import User_Levels, Users
 from utils.database import get_session
 from routes.auth import get_current_user 
 
-router = APIRouter(prefix="/users", tags=["Users"])
+router = APIRouter(prefix="/users", tags=["User Levels"])
 
-@router.get("levels/", response_model=List[UserLevels])
+@router.get("/levels/", response_model=List[User_Levels])
 async def get_user_levels(session: AsyncSession = Depends(get_session)):
-    result = await session.execute(select(UserLevels))
+    result = await session.execute(select(User_Levels))
     return result.scalars().all()
 
-@router.get("levels/{user_level_id}", response_model=UserLevels)
+@router.get("/levels/{user_level_id}", response_model=User_Levels)
 async def get_user_level(
     user_level_id: int,
     session: AsyncSession = Depends(get_session)
 ):
-    statement = select(UserLevels).where(UserLevels.id == user_level_id)    
+    statement = select(User_Levels).where(User_Levels.id == user_level_id)    
     result = await session.execute(statement)
     user_level = result.scalar_one_or_none()
 
@@ -30,9 +30,9 @@ async def get_user_level(
 
     return user_level
 
-@router.post("levels/", response_model=UserLevels, status_code=201)
+@router.post("/levels/", response_model=User_Levels, status_code=201)
 async def create_user_level(
-    user_level: UserLevels,
+    user_level: User_Levels,
     session: AsyncSession = Depends(get_session),
     current_user: Users = Depends(get_current_user)
 ):
@@ -47,10 +47,10 @@ async def create_user_level(
     await session.refresh(user_level)
     return user_level
 
-@router.patch("levels/{user_level_id}", response_model=UserLevels)
+@router.patch("/levels/{user_level_id}", response_model=User_Levels)
 async def update_user_level(
     user_level_id: int,
-    user_level_update: UserLevels,
+    user_level_update: User_Levels,
     session: AsyncSession = Depends(get_session),
     current_user: Users = Depends(get_current_user)
 ):
@@ -62,7 +62,7 @@ async def update_user_level(
         )
 
     # Fetch the existing user level
-    statement = select(UserLevels).where(UserLevels.id == user_level_id)
+    statement = select(User_Levels).where(User_Levels.id == user_level_id)
     result = await session.execute(statement)
     db_user_level = result.scalar_one_or_none()
 
