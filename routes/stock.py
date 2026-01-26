@@ -70,8 +70,8 @@ async def get_stock_by_date(
     statement = (
         select(Stock, 
                Products.name.label("product_name" ), 
-               Products.category_id.label("product_category_id"), 
-               Product_Categories.name.label("product_category")
+               Products.category_id.label("category_id"), 
+               Product_Categories.name.label("category_name")
             )
         .join(Products, Stock.product_id == Products.id)
         .join(Product_Categories, Products.category_id == Product_Categories.id)
@@ -87,13 +87,13 @@ async def get_stock_by_date(
 
     # Transform into clean list of dicts
     stock_list = []
-    for stock, product_name, product_category_id, product_category in stocks:
+    for stock, product_name, category_id, category_name in stocks:
         stock_dict = {
             "id": stock.id,
             "product_id": stock.product_id,
             "product_name": product_name,
-            "product_category_id": product_category_id,
-            "product_category": product_category,
+            "category_id": category_id,
+            "category_name": category_name,
             "opening": stock.opening,  
             "additions": stock.additions
         }
