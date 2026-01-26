@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import select
 
-from utils.models import Stock, Users
+from utils.models import Products, Stock, Users
 from utils.database import get_session
 from routes.auth import get_current_user
 
@@ -15,7 +15,11 @@ async def get_stocks(
     session: AsyncSession = Depends(get_session),
     current_user: Users = Depends(get_current_user)
 ):
-    statement = select(Stock).where(Stock.shop_id == current_user.shop_id)
+    statement = (
+        select(Stock, Products)
+        .join(Products, Stock.product_id == Products.id)
+        .where(Stock.shop_id == current_user.shop_id)
+    )
 
     result = await session.execute(statement)
     stocks = result.scalars().all()
@@ -35,7 +39,8 @@ async def get_stock(
     current_user: Users = Depends(get_current_user)
 ):
     statement = (
-        select(Stock)
+        select(Stock, Products)
+        .join(Products, Stock.product_id == Products.id)
         .where(Stock.shop_id == current_user.shop_id)
         .where(Stock.id == stock_id)
     )
@@ -63,19 +68,31 @@ async def get_stock_by_date(
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")    
     
     statement = (
-        select(Stock)
+        select(Stock, Products.name.label("product_name"))  # Select name explicitly
+        .join(Products, Stock.product_id == Products.id)
         .where(Stock.shop_id == current_user.shop_id)
         .where(Stock.stock_date == stock_date)
     )
     
     result = await session.execute(statement)
-    stocks = result.scalars().all()
+    stocks = result.all()
 
     if not stocks:
         raise HTTPException(status_code=404, detail="No Stock found")
 
-    return stocks
+    # Transform into clean list of dicts
+    stock_list = []
+    for stock, product_name in stocks:
+        stock_dict = {
+            "id": stock.id,
+            "product_id": stock.product_id,
+            "product_name": product_name,
+            "opening": stock.opening,  
+            "additions": stock.additions
+        }
+        stock_list.append(stock_dict)
 
+    return stock_list
 
 @router.post("/", response_model=Stock, status_code=201)
 async def create_stock(
