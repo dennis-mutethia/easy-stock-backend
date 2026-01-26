@@ -16,6 +16,14 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://easystockapp.vercel.app"],  # Only your frontend domain
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],  # Common needed headers
+)
+
 # Include all routers
 app.include_router(auth.router)
 app.include_router(companies.router)
